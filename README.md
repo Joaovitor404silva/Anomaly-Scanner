@@ -1,4 +1,4 @@
-# stalker2-live-debugger
+# Anomaly-Scanner
 
 A live, in-process debugger for **S.T.A.L.K.E.R. 2: Heart of Chornobyl** (UE 5.5, Steam, Windows), built for modders and
 for AI coding agents. It runs inside a patched *copy* of the game and exposes Unreal reflection, memory, hooks and hardware
@@ -41,7 +41,7 @@ and drive the running game.
 
 ```powershell
 git clone --recursive <this repo>        # MinHook is a submodule (src/minhook)
-cd stalker2-live-debugger
+cd Anomaly-Scanner
 cmd /c src\build.bat                       # -> bin\S2Dev.dll, bin\S2DevCore.dll
 powershell -File src\make_devroot.ps1      # once; -Game <game folder> -DevRoot <dev folder> to override
 powershell -File launch.ps1                # starts the dev game windowed, saves in Saved_dev
@@ -54,7 +54,7 @@ here. It refuses to start a second dev game (`-Force` launches alongside other S
 ### Register the MCP server
 
 ```powershell
-claude mcp add s2dev -- node <path>\stalker2-live-debugger\mcp\server.js
+claude mcp add s2dev -- node <path>\Anomaly-Scanner\mcp\server.js
 ```
 
 ## CLI
