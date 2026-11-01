@@ -14,7 +14,7 @@ and drive the running game.
 
 > **Single-player dev tool.** It never modifies your Steam install. It builds a separate dev folder made of links to the game
 > files plus a patched copy of the exe. Tested on game build **26123434** (Update 2.1). Other builds may need new signatures
-> or offsets. Use at your own risk.
+> or offsets. Unofficial, single-player only, use at your own risk; read the [Disclaimer](#disclaimer).
 
 ---
 
@@ -178,7 +178,24 @@ No game needed.
 The UE 5.5 layout is detected live on first use (`uinfo`): FField name at 0x20, Offset_Internal at 0x44, sizeof(FProperty) = 0x70,
 item stride 24. Early reflection commands answer `error: reflection not ready` and retry the signature scan.
 
+## Disclaimer
+
+- **Unofficial.** This project is not affiliated with, endorsed by or supported by GSC Game World, Microsoft, Valve or
+  Epic Games. S.T.A.L.K.E.R. 2: Heart of Chornobyl is a trademark of GSC Game World. Unreal Engine is a trademark of Epic Games.
+  All other trademarks belong to their owners.
+- **No game content.** This repository contains no game code, assets, decompiled code or data from the game. The names
+  database and the decompile are generated locally from your own legally obtained copy and must not be redistributed.
+- **Single-player and offline use only.** Do not use it in online or multiplayer sessions, with anti-cheat, or to gain an
+  advantage over other players. Doing so may break the game's terms of service and can get your account banned.
+- **Use at your own risk.** It injects code into a running process and writes to its memory. It can crash the game, corrupt
+  saves or cause data loss. Back up your saves (the dev game uses a separate `Saved_dev` folder, but nothing is guaranteed).
+  The software is provided "as is", without warranty of any kind; see `LICENSE`.
+- **Your responsibility.** You are responsible for complying with the game's EULA and the laws of your country. Modding and
+  reverse engineering for interoperability are allowed in many places but not all.
+- **Antivirus.** DLL injection, inline hooks and exe patching can trigger antivirus warnings. Build from source and check the
+  code yourself if in doubt.
+- **AI-assisted.** Parts of this project were written with the help of AI coding tools.
+
 ## License
 
 MIT, see `LICENSE`. MinHook (`src/minhook`, submodule) is BSD-2-Clause, copyright Tsuda Kageyu.
-Not affiliated with GSC Game World. STALKER 2 is a trademark of its owners.
