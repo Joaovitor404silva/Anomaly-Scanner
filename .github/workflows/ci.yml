@@ -1,0 +1,7 @@
+name: CI
+on: [pull_request, push, workflow_dispatch]
+jobs:
+  plugin:
+    uses: Joaovitor404silva/Game-Crawler/.github/workflows/plugin.yml@main
+    with:
+      name: anomaly-scanner
