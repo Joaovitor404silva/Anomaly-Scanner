@@ -26,10 +26,10 @@ void JsonSetData(const std::string& j) { t_jdata = j; }
 void JsonSetOk(bool ok) { t_jok = ok ? 1 : 0; }
 
 static int PortNum() {
-  char ps[16]; if (GetEnvironmentVariableA("S2DEV_PORT", ps, sizeof ps)) { int p = atoi(ps); if (p > 0 && p < 65536) return p; }
+  char ps[16]; if (GetEnvironmentVariableA("ANOMALY_PORT", ps, sizeof ps)) { int p = atoi(ps); if (p > 0 && p < 65536) return p; }
   return 27060;
 }
-std::string LogDir() { char d[MAX_PATH]; if (GetEnvironmentVariableA("S2DEV_LOGDIR", d, sizeof d)) return d; return S2Home(); }
+std::string LogDir() { char d[MAX_PATH]; if (GetEnvironmentVariableA("ANOMALY_LOGDIR", d, sizeof d)) return d; return S2Home(); }
 std::string PortLogPath() { return LogDir() + "\\s2dev_" + std::to_string(PortNum()) + ".log"; }
 static SRWLOCK g_logLock = SRWLOCK_INIT;
 static FILE* g_logF; static long long g_logBytes;
@@ -71,7 +71,7 @@ static void TickAutoexec() {
   static std::vector<std::pair<std::string, std::string>> lines; static bool loaded; static uint64_t next = 300;
   if (H->tickCount < next) return; next = H->tickCount + 600;
   if (!loaded) {
-    loaded = true; char p[MAX_PATH]; if (!GetEnvironmentVariableA("S2DEV_AUTOEXEC", p, sizeof p)) return;
+    loaded = true; char p[MAX_PATH]; if (!GetEnvironmentVariableA("ANOMALY_AUTOEXEC", p, sizeof p)) return;
     FILE* f; if (fopen_s(&f, p, "rb")) { H->log("autoexec: cannot open %s", p); return; }
     char b[512]; while (fgets(b, sizeof b, f)) { std::string s = b; s = s.substr(0, s.find('#')); auto t = Tokenize(s); if (t.size() >= 2) lines.push_back({ t[0], t[1] }); }
     fclose(f); H->log("autoexec: %zu cvars from %s", lines.size(), p);
@@ -159,7 +159,7 @@ std::string ModOf(uintptr_t a) {
 struct NameTab { std::vector<std::pair<uint32_t, std::string>> v; std::map<std::string, uint32_t> byLower; };
 static NameTab* volatile g_names;
 static int LoadNames() {
-  FILE* f; if (fopen_s(&f, S2Env("S2DEV_NAMES", S2Path("names\\names.tsv")).c_str(), "rb")) return -1;
+  FILE* f; if (fopen_s(&f, S2Env("ANOMALY_NAMES", S2Path("names\\names.tsv")).c_str(), "rb")) return -1;
   NameTab* t = new NameTab; char line[1024];
   while (fgets(line, sizeof(line), f)) {
     char* p1 = strchr(line, '\t'); if (!p1) continue; char* p2 = strchr(p1 + 1, '\t'); if (!p2) continue; char* p3 = strchr(p2 + 1, '\t');

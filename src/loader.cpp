@@ -11,9 +11,9 @@
 #include "sig.h"
 #pragma comment(lib, "ws2_32.lib")
 
-static const std::string& LogPathS() { static std::string p = S2Env("S2DEV_LOGDIR", S2Home()) + "\\s2dev.log"; return p; }
+static const std::string& LogPathS() { static std::string p = S2Env("ANOMALY_LOGDIR", S2Home()) + "\\s2dev.log"; return p; }
 #define LOG_PATH (LogPathS().c_str())
-static std::string CoreSrc() { char e[MAX_PATH]; DWORD n = GetEnvironmentVariableA("S2DEV_CORE", e, sizeof e); return n && n < sizeof e ? std::string(e) : S2Path("bin\\S2DevCore.dll"); }
+static std::string CoreSrc() { char e[MAX_PATH]; DWORD n = GetEnvironmentVariableA("ANOMALY_CORE", e, sizeof e); return n && n < sizeof e ? std::string(e) : S2Path("bin\\S2DevCore.dll"); }
 static const std::string& ShadowDirS() { static std::string p = S2Path("bin\\shadow"); return p; }
 #define SHADOW_DIR (ShadowDirS().c_str())
 static int PORT = 27060;
@@ -33,7 +33,7 @@ static void Log(const char* fmt, ...) {
   char buf[4096];
   SYSTEMTIME t; GetLocalTime(&t);
   int n = sprintf_s(buf, "[%02d:%02d:%02d.%03d] ", t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
-  static char tag[16] = "?"; if (tag[0] == '?') { tag[0] = 0; char ps[16]; if (GetEnvironmentVariableA("S2DEV_PORT", ps, sizeof ps)) sprintf_s(tag, "{%s} ", ps); }
+  static char tag[16] = "?"; if (tag[0] == '?') { tag[0] = 0; char ps[16]; if (GetEnvironmentVariableA("ANOMALY_PORT", ps, sizeof ps)) sprintf_s(tag, "{%s} ", ps); }
   n += sprintf_s(buf + n, sizeof(buf) - n, "%s", tag);
   va_list ap; va_start(ap, fmt); vsnprintf(buf + n, sizeof(buf) - n - 2, fmt, ap); va_end(ap);
   size_t len = strlen(buf); if (len == 0 || buf[len - 1] != '\n') { buf[len++] = '\n'; buf[len] = 0; }
@@ -125,7 +125,7 @@ static DWORD WINAPI MainThread(LPVOID) {
     Log("GameEngine::Tick hook at %p: create=%d enable=%d", t, a, b);
   }
   LoadCore();
-  char ps[16]; if (GetEnvironmentVariableA("S2DEV_PORT", ps, sizeof ps)) { int p = atoi(ps); if (p > 0 && p < 65536) PORT = p; }
+  char ps[16]; if (GetEnvironmentVariableA("ANOMALY_PORT", ps, sizeof ps)) { int p = atoi(ps); if (p > 0 && p < 65536) PORT = p; }
   WSADATA w; WSAStartup(MAKEWORD(2, 2), &w);
   SOCKET ls = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   int one = 1; setsockopt(ls, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&one, sizeof(one));

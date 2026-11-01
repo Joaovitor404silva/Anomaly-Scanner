@@ -455,8 +455,8 @@ int main(int argc, char** argv) {
   char dir[MAX_PATH]; GetTempPathA(MAX_PATH, dir);
   std::string ld = std::string(dir) + "s2dev_test_" + std::to_string(GetCurrentProcessId());
   CreateDirectoryA(ld.c_str(), nullptr);
-  SetEnvironmentVariableA("S2DEV_LOGDIR", ld.c_str());
-  SetEnvironmentVariableA("S2DEV_PORT", "27999");
+  SetEnvironmentVariableA("ANOMALY_LOGDIR", ld.c_str());
+  SetEnvironmentVariableA("ANOMALY_PORT", "27999");
   g_testApi.base = (uintptr_t)GetModuleHandleA(nullptr); g_testApi.gameThreadId = GetCurrentThreadId();
   H = &g_testApi;
   TestJsonOut(); TestAgg(); TestChunk(); TestSampler(); TestWalk(); TestDetour(); TestStats(); TestUopt(); TestMemdiff(); TestRetry(); TestPose(); TestContainers(); TestQring(); TestQuest(); TestQuestPool(); TestPlugRestore(); TestHwHook();

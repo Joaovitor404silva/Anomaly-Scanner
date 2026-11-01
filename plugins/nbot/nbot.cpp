@@ -933,9 +933,9 @@ static void PollRequests()
 S2_EXPORT int S2PluginInit(const S2Api* a)
 {
   api = a;
-  char ps[16] = {0}; GetEnvironmentVariableA("S2DEV_PORT", ps, sizeof ps); g_port = atoi(ps);
-  g_on = S2Env("S2DEV_NBOT", "1") != "0";
-  if (!g_on) { api->log("nbot off (S2DEV_NBOT=0) on port %d", g_port); return 1; }
+  char ps[16] = {0}; GetEnvironmentVariableA("ANOMALY_PORT", ps, sizeof ps); g_port = atoi(ps);
+  g_on = S2Env("ANOMALY_NBOT", "1") != "0";
+  if (!g_on) { api->log("nbot off (ANOMALY_NBOT=0) on port %d", g_port); return 1; }
   g_io = S2Path("bench\\io\\") + std::to_string(g_port);
   CreateDirectoryA(S2Path("bench").c_str(), nullptr); CreateDirectoryA(S2Path("bench\\io").c_str(), nullptr); CreateDirectoryA(g_io.c_str(), nullptr);
   { char bb[MAX_PATH] = {0}; GetEnvironmentVariableA("S2_BRIDGE", bb, sizeof bb); g_bridge = bb; if (!g_bridge.empty() && g_bridge.back() != '\\') g_bridge += '\\'; }

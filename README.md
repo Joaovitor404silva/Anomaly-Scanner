@@ -26,7 +26,7 @@ and drive the running game.
 | `src/make_devroot.ps1` | Builds the dev folder (default `C:\S2DevRoot`): junctions and hardlinks to the Steam install, the patched exe, no UE4SS, no mod paks. Idempotent. |
 | `S2Dev.dll` (`src/loader.cpp`) | Loader: log, TCP server on `127.0.0.1:27060`, `GameEngine::Tick` hook (game-thread pump), hot reload of the core. |
 | `S2DevCore.dll` (`src/core.cpp`, `ue.cpp`, `hooks.cpp`, `probe.cpp`, `plugins.cpp`) | Every command. Loaded from a shadow copy, so it can be rebuilt and reloaded while the game runs. |
-| `s2dev.js` | CLI client. |
+| `anomaly.js` | CLI client. |
 | `mcp/server.js` | MCP server (stdio, JSON-RPC 2.0, no dependencies). |
 | `plugins/` | Plugin API (`s2dev_api.h`), `example` (hooks one game function) and `nbot` (a scripted player bot). |
 
@@ -45,21 +45,21 @@ cd Anomaly-Scanner
 cmd /c src\build.bat                       # -> bin\S2Dev.dll, bin\S2DevCore.dll
 powershell -File src\make_devroot.ps1      # once; -Game <game folder> -DevRoot <dev folder> to override
 powershell -File launch.ps1                # starts the dev game windowed, saves in Saved_dev
-node s2dev.js ping                         # -> pong pid=... core=loaded
+node anomaly.js ping                         # -> pong pid=... core=loaded
 ```
 
-`launch.ps1` sets `S2DEV_HOME` to this folder, so the DLLs find `bin\`, `plugins\`, the logs and the optional names database
+`launch.ps1` sets `ANOMALY_HOME` to this folder, so the DLLs find `bin\`, `plugins\`, the logs and the optional names database
 here. It refuses to start a second dev game (`-Force` launches alongside other STALKER 2 instances).
 
 ### Register the MCP server
 
 ```powershell
-claude mcp add s2dev -- node <path>\Anomaly-Scanner\mcp\server.js
+claude mcp add anomaly-scanner -- node <path>\Anomaly-Scanner\mcp\server.js
 ```
 
 ## CLI
 
-`node s2dev.js [--json] [--port N] <command>`, `-i` interactive, `-f file` script.
+`node anomaly.js [--json] [--port N] <command>`, `-i` interactive, `-f file` script.
 
 ```text
 ping
@@ -92,7 +92,7 @@ bpc, bps, hits, watchw, agg, scene, snap, sample, npcs, uid, comps, pose, quest,
 batch, mark, watch, unwatch, plugin, con, log, reload_core, raw`
 
 Every tool takes an optional `game` (port or alias) to target one of several dev games, and `all` runs it on every port.
-Results are capped at 12000 characters (`S2DEV_MCP_CAP`).
+Results are capped at 12000 characters (`ANOMALY_MCP_CAP`).
 
 ## Plugins
 
@@ -128,7 +128,7 @@ Exports: `S2PluginInit` (required, return 1 = ok), `S2PluginTick` (optional, gam
 (optional). A plugin that starts threads must stop and join them in `S2PluginShutdown`. Wrap risky pointer reads in
 `__try` / `__except`.
 
-`nbot` is a scripted player bot (movement, scenes, quest goals) driven through files in `bench\io\<port>`. Set `S2DEV_NBOT=0`
+`nbot` is a scripted player bot (movement, scenes, quest goals) driven through files in `bench\io\<port>`. Set `ANOMALY_NBOT=0`
 to keep it inert.
 
 ## Names database and decompile (optional)
@@ -154,16 +154,16 @@ must be rerun after a game update.
 
 | Variable | Default | Used for |
 |---|---|---|
-| `S2DEV_HOME` | `C:\s2dev` (set by `launch.ps1`) | Root for `bin\`, `plugins\`, logs, `names\`, `sdk\`, `bench\` |
-| `S2DEV_PORT` | `27060` | TCP port of the dev game (one per game when several run) |
-| `S2DEV_LOGDIR` | `S2DEV_HOME` | Log folder (`s2dev.log`, `s2dev_<port>.log`) |
-| `S2DEV_CORE` | `bin\S2DevCore.dll` | Core DLL to load (staged builds) |
-| `S2DEV_NAMES` | `names\names.tsv` | Names database |
-| `S2DEV_NATIVES` | `names\natives_impl.tsv` | Native exec -> impl table |
-| `S2DEV_DECOMP` | `decomp` | Decompile dump folder (MCP `decomp`) |
-| `S2DEV_SDK` | `sdk` | Per-class SDK tables for `layoutcheck` |
-| `S2DEV_NBOT` | `1` | `0` disables the nbot plugin |
-| `S2DEV_TIMEOUT`, `S2DEV_MCP_CAP`, `S2DEV_ALL_PORTS` | | CLI/MCP timeout, MCP result cap, port list for `game=all` |
+| `ANOMALY_HOME` | `C:\s2dev` (set by `launch.ps1`) | Root for `bin\`, `plugins\`, logs, `names\`, `sdk\`, `bench\` |
+| `ANOMALY_PORT` | `27060` | TCP port of the dev game (one per game when several run) |
+| `ANOMALY_LOGDIR` | `ANOMALY_HOME` | Log folder (`s2dev.log`, `s2dev_<port>.log`) |
+| `ANOMALY_CORE` | `bin\S2DevCore.dll` | Core DLL to load (staged builds) |
+| `ANOMALY_NAMES` | `names\names.tsv` | Names database |
+| `ANOMALY_NATIVES` | `names\natives_impl.tsv` | Native exec -> impl table |
+| `ANOMALY_DECOMP` | `decomp` | Decompile dump folder (MCP `decomp`) |
+| `ANOMALY_SDK` | `sdk` | Per-class SDK tables for `layoutcheck` |
+| `ANOMALY_NBOT` | `1` | `0` disables the nbot plugin |
+| `ANOMALY_TIMEOUT`, `ANOMALY_MCP_CAP`, `ANOMALY_ALL_PORTS` | | CLI/MCP timeout, MCP result cap, port list for `game=all` |
 
 ## Tests
 

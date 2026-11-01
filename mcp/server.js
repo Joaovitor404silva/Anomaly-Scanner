@@ -2,13 +2,13 @@
 'use strict';
 const net = require('net'), fs = require('fs'), path = require('path');
 const { AsyncLocalStorage } = require('async_hooks');
-const PORT = +(process.env.S2DEV_PORT || 27060), TIMEOUT = +(process.env.S2DEV_TIMEOUT || 30000), CAP = +(process.env.S2DEV_MCP_CAP || 12000);
-const HOME = process.env.S2DEV_HOME || path.resolve(__dirname, '..');
-const NAMES = process.env.S2DEV_NAMES || path.join(HOME, 'names', 'names.tsv'), DECOMP = process.env.S2DEV_DECOMP || path.join(HOME, 'decomp');
-const LOGDIR = process.env.S2DEV_LOGDIR || HOME, LOG = path.join(LOGDIR, 's2dev.log');
+const PORT = +(process.env.ANOMALY_PORT || 27060), TIMEOUT = +(process.env.ANOMALY_TIMEOUT || 30000), CAP = +(process.env.ANOMALY_MCP_CAP || 12000);
+const HOME = process.env.ANOMALY_HOME || path.resolve(__dirname, '..');
+const NAMES = process.env.ANOMALY_NAMES || path.join(HOME, 'names', 'names.tsv'), DECOMP = process.env.ANOMALY_DECOMP || path.join(HOME, 'decomp');
+const LOGDIR = process.env.ANOMALY_LOGDIR || HOME, LOG = path.join(LOGDIR, 's2dev.log');
 
 const GAMES = { B: 27060, A: 27061, D: 27062, C: 27063, E: 27064 };
-const ALL_PORTS = (process.env.S2DEV_ALL_PORTS || Object.values(GAMES).join(',')).split(',').map(Number).filter(Boolean);
+const ALL_PORTS = (process.env.ANOMALY_ALL_PORTS || Object.values(GAMES).join(',')).split(',').map(Number).filter(Boolean);
 const ctx = new AsyncLocalStorage();
 const socks = {}, chains = {};
 function connect(port) {
@@ -36,7 +36,7 @@ function game(line) {
   const port = c.port, timeout = c.timeout || TIMEOUT;
   const send = c.json && !loaderOnly(line) && !/^\s*json\b/i.test(line) ? 'json ' + line : line;
   const prev = chains[port] || Promise.resolve();
-  const p = prev.then(() => sendOnce(send, port, timeout).catch(e => { throw new Error('S2Dev not reachable on 127.0.0.1:' + port + ' (is the dev game running? C:\\modding\\s2dev\\launch.ps1): ' + e.message); }));
+  const p = prev.then(() => sendOnce(send, port, timeout).catch(e => { throw new Error('S2Dev not reachable on 127.0.0.1:' + port + ' (is the dev game running? start it with launch.ps1): ' + e.message); }));
   chains[port] = p.catch(() => {});
   return p;
 }
@@ -139,7 +139,7 @@ const tools = [
   ['sym', 'Address -> rva + symbol name (names.tsv, .pdata function start, natives).', S({ addr: ADDR }, ['addr']), a => cmd('sym', a.addr)],
   ['addr', 'Name -> live address (exact or substring match in names.tsv).', S({ name: str('e.g. Agent::IsChangingWeapon') }, ['name']), a => cmd('addr', a.name)],
   ['names', 'Search names.tsv offline (works without the game): rva, kind, name.', S({ query: str('substring'), limit: int('default 40') }, ['query']), a => namesSearch(a.query, a.limit || 40)],
-  ['decomp', 'Decompiled C (Ghidra dump in S2DEV_DECOMP) of a function by name or rva (rva may point inside the function). Offline.', S({ what: str('name like Agent::IsChangingWeapon, or rva like 0x441a7e'), max_lines: int('default 200') }, ['what']), a => decomp(a.what, a.max_lines || 200)],
+  ['decomp', 'Decompiled C (Ghidra dump in ANOMALY_DECOMP) of a function by name or rva (rva may point inside the function). Offline.', S({ what: str('name like Agent::IsChangingWeapon, or rva like 0x441a7e'), max_lines: int('default 200') }, ['what']), a => decomp(a.what, a.max_lines || 200)],
   ['native', 'Look up natives (exec thunk + impl addresses) by name substring.', S({ name: str('substring') }, ['name']), a => cmd('native', a.name)],
   ['hook', 'Inline hook an address or native. log = log args+caller per hit; block = return 0; ret = return value.', S({ target: ADDR, mode: { type: 'string', enum: ['log', 'block', 'ret'] }, value: str('return value for ret'), exec: { type: 'boolean', description: 'hook the exec thunk instead of the impl' }, hw: { type: 'boolean', description: 'hardware exec breakpoint instead of patched bytes (log only, aggregates); use when the target is already detoured by another module' }, opts: OPTS }, ['target']), a => game(['hook', q(a.target), a.mode && a.mode !== 'log' ? a.mode : '', a.mode === 'ret' ? q(a.value || '0') : '', a.exec ? 'exec' : '', a.hw ? 'hw' : '', a.opts || ''].filter(Boolean).join(' '))],
   ['unhook', 'Remove a hook by id, or all.', S({ id: str('hook id or all') }), a => cmd('unhook', a.id || 'all')],
@@ -199,7 +199,7 @@ const byName = Object.fromEntries(tools.map(t => [t[0], t]));
 
 const send = m => process.stdout.write(JSON.stringify(m) + '\n');
 async function onMessage(m) {
-  if (m.method === 'initialize') return send({ jsonrpc: '2.0', id: m.id, result: { protocolVersion: (m.params && m.params.protocolVersion) || '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 's2dev', version: '2.2.0' } } });
+  if (m.method === 'initialize') return send({ jsonrpc: '2.0', id: m.id, result: { protocolVersion: (m.params && m.params.protocolVersion) || '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'anomaly-scanner', version: '2.2.0' } } });
   if (m.id === undefined) return;
   if (m.method === 'ping') return send({ jsonrpc: '2.0', id: m.id, result: {} });
   if (m.method === 'tools/list') return send({ jsonrpc: '2.0', id: m.id, result: { tools: tools.map(([name, description, inputSchema]) => ({ name, description, inputSchema })) } });

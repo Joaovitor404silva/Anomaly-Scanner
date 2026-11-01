@@ -2,9 +2,9 @@ const fs = require('fs'), path = require('path'), cp = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2), opt = {};
 for (let i = 0; i < args.length; i++) { const a = args[i]; if (a === '--offline') opt.offline = true; else if (/^--(exe|ue4ss|dir|out|port)$/.test(a)) opt[a.slice(2)] = args[++i]; else { console.error('usage: node tools/build_names.js [--offline] [--exe <game exe>] [--ue4ss <UE4SS.log>] [--dir <raw dir>] [--out <names.tsv>] [--port N]'); process.exit(2); } }
-const HOME = process.env.S2DEV_HOME || ROOT;
+const HOME = process.env.ANOMALY_HOME || ROOT;
 const D = path.resolve(opt.dir || path.join(HOME, 'names'));
-const OUT = path.resolve(opt.out || process.env.S2DEV_NAMES || path.join(D, 'names.tsv'));
+const OUT = path.resolve(opt.out || process.env.ANOMALY_NAMES || path.join(D, 'names.tsv'));
 const EXE = opt.exe || 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\S.T.A.L.K.E.R. 2 Heart of Chornobyl\\Stalker2\\Binaries\\Win64\\Stalker2-Win64-Shipping.exe';
 if (!fs.existsSync(EXE)) { console.error('game exe not found: ' + EXE + ' (use --exe)'); process.exit(2); }
 fs.mkdirSync(D, { recursive: true });
@@ -24,7 +24,7 @@ const TEXT_BEG = text.va, TEXT_END = text.va + text.vs;
 const inText = r => r >= TEXT_BEG && r < TEXT_END;
 
 function s2(cmd) {
-  const a = [path.join(ROOT, 's2dev.js'), '--timeout', '600000']; if (opt.port) a.push('--port', opt.port);
+  const a = [path.join(ROOT, 'anomaly.js'), '--timeout', '600000']; if (opt.port) a.push('--port', opt.port);
   const r = cp.spawnSync(process.execPath, a.concat(cmd), { encoding: 'utf8' });
   const o = (r.stdout || '') + (r.stderr || '');
   if (r.status !== 0 || /^error|cannot/im.test(o)) { console.error(cmd.join(' ') + ': ' + o.trim()); process.exit(1); }
