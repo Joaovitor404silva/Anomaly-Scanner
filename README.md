@@ -161,7 +161,6 @@ must be rerun after a game update.
 | `ANOMALY_NAMES` | `names\names.tsv` | Names database |
 | `ANOMALY_NATIVES` | `names\natives_impl.tsv` | Native exec -> impl table |
 | `ANOMALY_DECOMP` | `decomp` | Decompile dump folder (MCP `decomp`) |
-| `ANOMALY_SDK` | `sdk` | Per-class SDK tables for `layoutcheck` |
 | `ANOMALY_NBOT` | `1` | `0` disables the nbot plugin |
 | `ANOMALY_TIMEOUT`, `ANOMALY_MCP_CAP`, `ANOMALY_ALL_PORTS` | | CLI/MCP timeout, MCP result cap, port list for `game=all` |
 
