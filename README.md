@@ -55,14 +55,31 @@ The MCP server picks up `mcp.js` from this folder and adds the `quest`, `npcs` a
 | `nbot*.cpp`, `nbot*.h`, `quest_goals.tsv` | Scripted player bot |
 | `opts.h` | `key=value` argument parsing |
 | `mcp.js` | MCP tools for the commands |
+| `s2dev_api.h` | Lets old S2Dev plugins (`S2PluginInit`, `S2Api`) build unchanged as Game Crawler plugins |
+| `harness\` | Co-op test harness: launches and drives a host + client pair, plans, live checks, hot reload, crash recovery |
 | `test\` | Unit tests (`test\build.bat`, run from inside Game Crawler's `plugins\anomaly-scanner`) |
+
+## Old S2Dev plugins
+
+Put the plugin folder in Game Crawler's `plugins\` and change its include to `#include "../anomaly-scanner/s2dev_api.h"`.
+`S2Api` is the first part of Game Crawler's `UEApi`, so the code builds and runs as is.
+
+## Test harness
+
+`harness\harness.ps1` runs a dev host + client pair of the game, each loading Game Crawler through a `version.dll`
+proxy in its own dev root (`harness\tools\use_crawler.ps1` sets a root up). `harness.ps1 selftest -NoWinTests` checks it
+offline; `harness.ps1` with no arguments lists the commands. Run data (runs, plans, specs, locks) goes to `S2H_HOME`.
 
 ## Configuration
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `ANOMALY_NBOT` | `1` | `0` keeps nbot inert |
+| `ANOMALY_BENCH` | `<CRAWLER_HOME>\bench` | nbot request/result and recording folder |
 | `S2_BRIDGE` | | Folder of the scene bridge used by nbot scenes |
+| `S2H_HOME` | `C:\modding\s2harness` | Harness data folder |
+| `GAME_CRAWLER` | `D:\modding\Game-Crawler` | Game Crawler folder used by the harness |
+| `UV_EXE` | `uv` on `PATH` | uv, for the harness Python helpers |
 
 ## Disclaimer
 

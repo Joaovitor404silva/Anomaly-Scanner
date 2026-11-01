@@ -436,7 +436,7 @@ static void Snapshot(const char* ev)
 static std::string RecStart(const std::string& name)
 {
   if (R.on) return "err already recording " + R.path;
-  std::string dir = S2Path("bench\\rec"); CreateDirectoryA(dir.c_str(), nullptr);
+  std::string dir = BenchPath("rec"); CreateDirectoryA(dir.c_str(), nullptr);
   dir += Fmt("\\%d", g_port); CreateDirectoryA(dir.c_str(), nullptr);
   SYSTEMTIME t; GetLocalTime(&t);
   R = Rec(); R.path = dir + Fmt("\\rec_%04d%02d%02d_%02d%02d%02d", t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond) + (name.empty() ? "" : "_" + name) + ".jsonl";
@@ -934,8 +934,8 @@ int NbotInit(const UEApi* a)
   char ps[16] = {0}; GetEnvironmentVariableA("CRAWLER_PORT", ps, sizeof ps); g_port = atoi(ps);
   g_on = S2Env("ANOMALY_NBOT", "1") != "0";
   if (!g_on) { api->log("nbot off (ANOMALY_NBOT=0) on port %d", g_port); return 1; }
-  g_io = S2Path("bench\\io\\") + std::to_string(g_port);
-  CreateDirectoryA(S2Path("bench").c_str(), nullptr); CreateDirectoryA(S2Path("bench\\io").c_str(), nullptr); CreateDirectoryA(g_io.c_str(), nullptr);
+  g_io = BenchPath("io\\") + std::to_string(g_port);
+  CreateDirectoryA(BenchPath("").c_str(), nullptr); CreateDirectoryA(BenchPath("io").c_str(), nullptr); CreateDirectoryA(g_io.c_str(), nullptr);
   { char bb[MAX_PATH] = {0}; GetEnvironmentVariableA("S2_BRIDGE", bb, sizeof bb); g_bridge = bb; if (!g_bridge.empty() && g_bridge.back() != '\\') g_bridge += '\\'; }
   api->log("nbot on port %d io %s bridge %s", g_port, g_io.c_str(), g_bridge.c_str()); Log("nbot loaded port %d bridge %s", g_port, g_bridge.c_str()); Nat();
   return 1;
