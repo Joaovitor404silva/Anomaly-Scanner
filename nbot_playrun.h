@@ -68,7 +68,7 @@ static std::string g_stagesPath;
 static bool LoadStages()
 {
   if (!g_stages.empty()) return true;
-  std::string cands[] = { S2Path("plugins\\nbot\\quest_goals.tsv"), S2Path("bench\\quest_goals.tsv") };
+  std::string cands[] = { S2Path("plugins\\anomaly-scanner\\quest_goals.tsv"), S2Path("bench\\quest_goals.tsv") };
   for (const std::string& c : cands) { std::string t; if (ReadFile2(c, t) && !t.empty()) { g_stages = npl::load_goals(t); g_stagesPath = c; break; } }
   return !g_stages.empty();
 }

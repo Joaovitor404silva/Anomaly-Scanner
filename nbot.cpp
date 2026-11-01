@@ -1,5 +1,4 @@
 #include <windows.h>
-#include "../../src/home.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -8,12 +7,11 @@
 #include <vector>
 #include <intrin.h>
 #pragma comment(lib, "user32.lib")
-#include "s2dev_api.h"
-#include "..\..\src\sig.h"
+#include "anomaly.h"
 #include "nbot_scene.h"
 #include "nbot_cine_math.h"
 
-static const S2Api* api;
+static const UEApi* api;
 static bool g_on;
 static int g_port;
 static std::string g_io;
@@ -930,10 +928,10 @@ static void PollRequests()
   }
 }
 
-S2_EXPORT int S2PluginInit(const S2Api* a)
+int NbotInit(const UEApi* a)
 {
   api = a;
-  char ps[16] = {0}; GetEnvironmentVariableA("ANOMALY_PORT", ps, sizeof ps); g_port = atoi(ps);
+  char ps[16] = {0}; GetEnvironmentVariableA("CRAWLER_PORT", ps, sizeof ps); g_port = atoi(ps);
   g_on = S2Env("ANOMALY_NBOT", "1") != "0";
   if (!g_on) { api->log("nbot off (ANOMALY_NBOT=0) on port %d", g_port); return 1; }
   g_io = S2Path("bench\\io\\") + std::to_string(g_port);
@@ -942,8 +940,8 @@ S2_EXPORT int S2PluginInit(const S2Api* a)
   api->log("nbot on port %d io %s bridge %s", g_port, g_io.c_str(), g_bridge.c_str()); Log("nbot loaded port %d bridge %s", g_port, g_bridge.c_str()); Nat();
   return 1;
 }
-S2_EXPORT void S2PluginShutdown() { if (g_on) CamOff("unload"); if (g_on && g.kind != G_NONE) Finish("aborted", "unload"); if (R.on) RecStop(); }
-S2_EXPORT void S2PluginTick()
+void NbotShutdown() { if (g_on) CamOff("unload"); if (g_on && g.kind != G_NONE) Finish("aborted", "unload"); if (R.on) RecStop(); }
+void NbotTick()
 {
   if (!g_on) return;
   g_tick++;

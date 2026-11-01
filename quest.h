@@ -5,7 +5,7 @@
 #include <functional>
 #include <set>
 #include <algorithm>
-#include "containers.h"
+namespace cnt { using ReadFn = std::function<bool(uint64_t addr, void* out, size_t n)>; }
 #include "qring.h"
 
 namespace qst {
