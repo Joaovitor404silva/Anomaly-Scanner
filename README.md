@@ -67,7 +67,7 @@ find class:Stalker2PlayerController
 get pawn BaseEyeHeight
 set pawn CharacterMovement.MaxWalkSpeed 900
 call pawn K2_GetActorLocation
-hook Agent::IsInThreat log        # then: log 20
+hook Agent::IsChangingWeapon log        # then: log 20
 bpw 0x13a8073d040 8               # who writes these 8 bytes (hits in the log), then: bpc all
 con "t.MaxFPS 30"
 ```
@@ -105,7 +105,7 @@ fresh copy is loaded and `S2PluginInit` runs. A failed build keeps the old copy 
 static const S2Api* api;
 typedef bool(__fastcall* Fn)(void*); static Fn orig;
 static bool __fastcall Detour(void* self) { return true; }
-S2_EXPORT int S2PluginInit(const S2Api* a) { api = a; return api->hook(api->addr("Agent::IsInThreat"), (void*)Detour, (void**)&orig); }
+S2_EXPORT int S2PluginInit(const S2Api* a) { api = a; return api->hook(api->addr("Agent::IsChangingWeapon"), (void*)Detour, (void**)&orig); }
 S2_EXPORT void S2PluginTick() {}
 S2_EXPORT void S2PluginShutdown() {}
 ```
@@ -116,7 +116,7 @@ API (`plugins/s2dev_api.h`, version 1):
 |---|---|
 | `base` | Game exe base address |
 | `log(fmt, ...)` | Append to `s2dev.log`, prefixed with the plugin name |
-| `addr(expr)` | Address of a names-database name (`Agent::IsInThreat`), a native, or any S2Dev expression; 0 = not found |
+| `addr(expr)` | Address of a names-database name (`Agent::IsChangingWeapon`), a native, or any S2Dev expression; 0 = not found |
 | `sym(a, buf, n)` | Address -> `exe+0x.. Name+0x..` |
 | `hook` / `unhook` | Inline hook (returns 1 on success); hooks are removed automatically on unload |
 | `find(obj)` | UObject by `pawn`, `pc`, name, path or `0x` address |
@@ -137,6 +137,18 @@ to keep it inert.
 (`rva<TAB>kind<TAB>name<TAB>source`, rva in hex from image base `0x140000000`). The `decomp` tool needs a Ghidra decompile dump with
 an `index.tsv` (`rva, name, file, line, size, callers`) in `decomp\`. Neither is shipped. Both are generated from your own copy of
 the game; this repo does not include game code or data.
+
+Build the names database with the dev game running (main menu is enough):
+
+```powershell
+node tools\build_names.js                  # dumps UFunctions, vtables and FField vtables live, then writes names\names.tsv
+node tools\build_names.js --ue4ss <path>\UE4SS.log   # optional: virtual slot names from a UE4SS log of the same game
+node tools\build_names.js --offline        # rebuild from the raw dumps already in names\
+```
+
+It names native UFunction exec thunks and their implementations, vtables and their overridden slots, UClass constructors,
+and the PE imports and exports of the exe (`--exe` if the game is not in the default Steam folder). It takes a few minutes and
+must be rerun after a game update.
 
 ## Configuration
 
